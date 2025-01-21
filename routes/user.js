@@ -52,13 +52,13 @@ router.put("/", async (req, res, next) => {
     }
 });
 
-// /api/user/createdJobs=true&savedJobs=false&appledJobs=true
+// /api/user/createdJobs=true&savedJobs=false&appliedJobs=true
 router.get("/", async( req, res, next) => {
     try {
         const {createdJobs, savedJobs, appliedJobs } = req.query;
         const jobs = await userModel.findById(red.user.id);
         if(!jobs){
-            return res.status(404).json({ message: "Usere not found"});
+            return res.status(404).json({ message: "User not found"});
         }
         const query = {};
         if(createdJobs) {
@@ -91,7 +91,8 @@ router.get("/status", async(req, res, next) => {
         const application = await applicationModel.find({ user: id });
         const acceptedApplication = application.filter(app => app.status === "accepted");
         const pendingApplication =application.filter(app => app.status === "pending");
-        return res.json({ acceptedApplication}).status(200);
+        const rejectedApplication =application.filter(app => app.status === "rejected");
+        return res.json({ acceptedApplication, pendingApplication, rejectedApplication}).status(200);
     }
     catch (err) {
         next(err);
@@ -101,5 +102,29 @@ router.get("/status", async(req, res, next) => {
 
 // cerate filter for pending rejected
 // create apis for counting applications (individually) and cumulatively)
+router.get("/application/count", async (req, res, next) => {
+    try {
+        const { id } = req.user;
+        const totalApplication = await applicationModel.countDocuments({ user: id});
+        const statusWiseCounts = await applicationModel.aggregate([
+            { $match: { user: id }},
+            { $group: { _id: "$status", count: { $sum: 1}}}
+        ]);
+        const counts = {
+            total: totalApplication,
+            status: statusWiseCounts.reduce((acc, { _id, count }) => {
+                acc[_id] = count;
+                return acc;
+
+            },
+            {}),
+        
+        };
+        res.status(200).json(counts);
+
+    } catch (err){
+        next(err);
+    }
+});
 
 module.exports = router;
