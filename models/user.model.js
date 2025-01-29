@@ -1,4 +1,4 @@
-const  mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const userSchema = new Schema({
     name: {
@@ -14,21 +14,26 @@ const userSchema = new Schema({
         type: String,
         required: true,
     },
+    mobile: {
+        type: String,
+        unique: true,
+        default: null,
+        required: true,
+    },
     createdJobs: {
-        type: Schema.Types.ObjectId,
+        type: [Schema.Types.ObjectId],
         ref: "Job",
         required: false,
     },
     appliedJobs: {
-        type: Schema.Types.ObjectId,
+        type: [Schema.Types.ObjectId],
         ref: "Application",
-        required: true,
+        required: false,
     },
     savedJobs: {
-        type: Schema.Types.ObjectId,
+        type: [Schema.Types.ObjectId],
         ref: "Job",
-        required: true,
+        required: false,
     },
 });
-
 module.exports = mongoose.model("User", userSchema);

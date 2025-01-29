@@ -1,16 +1,15 @@
-const authMiddleware = (req, res, next) => {
+function authMiddleware(req, res, next) {
     try {
         const token = req.headers.authorization;
-        if (!token ) {
-            return res.status(401).json({message: "No Token Provided"});
+        if (!token) {
+            return res.status(401).json({ message: "No token provided" });
         }
         const decoded = jwt.verify(token, process.env.SECRET_KEY);
         req.user = decoded;
         next();
-    }catch (err) {
+    } catch (err) {
         next(err);
     }
-    
 };
 
-module.exports = authMiddleware;
+exports.authMiddleware = authMiddleware;
