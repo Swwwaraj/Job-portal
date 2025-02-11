@@ -13,11 +13,12 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(errorHandler)
+app.use(cors({ origin: "*" }));
 app.use('/api/user', userRoutes);
 app.use('/api/auth', authRoutes);
 app.get("/", (req, res, next) => {
     try {
-        res.send("Hello World!");
+        res.send("Job Portal Backend");
     } catch (err) {
         next(err);
     }
